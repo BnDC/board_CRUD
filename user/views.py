@@ -1,4 +1,5 @@
 import json
+from json.decoder import JSONDecodeError
 import bcrypt
 import jwt
 import re
@@ -31,13 +32,10 @@ class SignUpView(View):
                 return JsonResponse({'message': 'INVALID_PASSWORD_FORM'}, status=400)
 
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            
+
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
-        
-        except json.decoder.JSONDecodeError:
-            return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status=400)
-        
+
         User.objects.create(
             email    = email,
             nickname = nickname,
@@ -45,3 +43,24 @@ class SignUpView(View):
         )
 
         return JsonResponse({'message': 'SUCCESS'}, status=201)
+
+class LoginView(View):
+    def post(self, request):
+        try:
+            data     = json.loads(request.body)
+            email    = data['email']
+            password = data['password']
+            user = User.objects.get(email = email)
+
+            if not (user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+                return JsonResponse({"message" : "INVALID_USER"}, status = 401)
+
+        except KeyError:
+            return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
+
+        except User.DoesNotExist:
+            return JsonResponse({"message" : "DOES_NOT_EXIST"}, status = 401)
+
+        encoded_jwt = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm = 'HS256')
+
+        return JsonResponse({'access_token' : encoded_jwt}, status = 201) 
