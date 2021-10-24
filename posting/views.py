@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 from django.views import View
 
+from user.models import User
 from posting.models import Posting
 from core.views import login_required
 
@@ -26,13 +27,22 @@ class PostingView(View):
 
         return JsonResponse({"message" : "CREATED"}, status = 201)
     
-    @login_required
-    def get(self, request):
-        postings = Posting.objects.all()
+    def get(self, request, posting_id = None):
+        if posting_id == None:
+            return JsonResponse({"message" : "NEED_POSTING_ID"}, status = 400)
+        
+        posting_queryset = Posting.objects.filter(id = posting_id)
+        posting          = posting_queryset.first()
 
-        result = [{
-            "id" : posting.id,
-            "title" : posting.title,
-        } for posting in postings]
+        if not posting_queryset.exists() or posting.deleted_at != None:
+            return JsonResponse({"message" : "DOES_NOT_EXIST"}, status = 400)
+        
+        result = {
+            "id"         : posting.id,
+            "title"      : posting.title,
+            "content"    : posting.content,
+            "created_at" : posting.created_at,
+            "updated_at" : posting.updated_at,
+        }
 
         return JsonResponse({"result" : result}, status = 200)
