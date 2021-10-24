@@ -1,5 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
+from datetime import datetime
 
 from django.http import JsonResponse
 from django.views import View
@@ -72,3 +73,27 @@ class PostingView(View):
         posting.save()
 
         return JsonResponse({"message" : "UPDATED"}, status = 200)
+
+    @login_required
+    def delete(self, request, posting_id = None):
+        if posting_id == None:
+            return JsonResponse({"message" : "NEED_POSTING_ID"}, status = 400)
+
+        try:
+            user             = request.user
+            posting_queryset = Posting.objects.filter(id = posting_id)
+            posting          = posting_queryset.first()
+
+        except JSONDecodeError:
+            return JsonResponse({"message" : "JSON_DECODE_ERROR"}, status = 400)
+
+        if not posting_queryset.exists() or posting.deleted_at != None:
+            return JsonResponse({"message" : "DOES_NOT_EXIST"}, status = 400)
+
+        if posting.user_id != user.id:
+            return JsonResponse({"message" : "FORBIDDEN"}, status = 403)
+
+        posting.deleted_at = datetime.now()
+        posting.save()
+
+        return JsonResponse({"message" : "DELETED"}, status = 204)
