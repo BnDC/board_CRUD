@@ -23,18 +23,24 @@ class SignUpView(View):
             password = data['password']
 
             if User.objects.filter(email = email).exists():
-                return JsonResponse({'message': 'EXIST_EMAIL'}, status=400)
+                return JsonResponse({'message': 'EXIST_EMAIL'}, status = 400)
+            
+            if User.objects.filter(nickname = nickname).exists():
+                return JsonResponse({'message': 'EXIST_NICKNAME'}, status = 400)
 
             if not re.match(REGX_EMAIL, email):
-                return JsonResponse({'message': 'INVALID_EMAIL_FORM'}, status=400)
+                return JsonResponse({'message': 'INVALID_EMAIL_FORM'}, status = 400)
 
             if not re.match(REGX_PASSWORD, password):
-                return JsonResponse({'message': 'INVALID_PASSWORD_FORM'}, status=400)
+                return JsonResponse({'message': 'INVALID_PASSWORD_FORM'}, status = 400)
 
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         except KeyError:
-            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+            return JsonResponse({'message': 'KEY_ERROR'}, status = 400)
+        
+        except JSONDecodeError:
+            return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status = 400)
 
         User.objects.create(
             email    = email,
@@ -42,7 +48,7 @@ class SignUpView(View):
             password = hashed_password,
         )
 
-        return JsonResponse({'message': 'SUCCESS'}, status=201)
+        return JsonResponse({'message': 'SUCCESS'}, status = 201)
 
 class LoginView(View):
     def post(self, request):
