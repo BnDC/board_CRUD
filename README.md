@@ -83,7 +83,7 @@ POST /users/signup <br>
 POST /users/login
 
 POST /postings <br>
-GET /postings/list?page= <br>
+GET /postings/list?page=1  <br>
 GET /postings/\<int:posting_id\> <br>
 PATCH /postings/\<int:posting_id\> <br>
 DELETE /postings/\<int:posting_id\>
@@ -249,7 +249,7 @@ X-Frame-Options: DENY <br>
 
 ## GET 게시판 하나의 글 보기 API
 ------
-http://127.0.0.1:8000/postings/\<int:posting_id\>
+http://127.0.0.1:8000/postings/\<int:posting_id\> <br>
 http://127.0.0.1:8000/postings/1
 <br>
 
@@ -300,7 +300,7 @@ X-Frame-Options: DENY <br>
 
 ## PATCH 게시판 글 수정 API
 
-http://127.0.0.1:8000/postings/\<int:posting_id\>
+http://127.0.0.1:8000/postings/\<int:posting_id\> <br>
 http://127.0.0.1:8000/postings/28
 <br>
 
@@ -354,7 +354,7 @@ X-Frame-Options: DENY <br>
 
 ## DELETE 게시판 글 삭제 API
 ------
-http://127.0.0.1:8000/postings/\<int:posting_id\>
+http://127.0.0.1:8000/postings/\<int:posting_id\> <br>
 http://127.0.0.1:8000/postings/28
 
 <br>
@@ -400,7 +400,7 @@ X-Frame-Options: DENY <br>
 
 ## GET 게시판 글 목록 API
 ------
-http://127.0.0.1:8000/postings/list
+http://127.0.0.1:8000/postings/list <br>
 http://127.0.0.1:8000/postings/list?page=1
 
 <br>
